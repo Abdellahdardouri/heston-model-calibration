@@ -215,3 +215,37 @@ class DotPrinter(threading.Thread):
         self.running = False
 
 # ----------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------
+# Quick demo / sanity-check (run this file directly)
+# This does not affect imports when the module is used elsewhere.
+def _demo_fft_price():
+    """
+    Simple smoke test: prices a single call using the FFT method.
+    Prints a non-negative price and the strike used.
+    """
+    S0 = 100.0
+    K = 100.0
+    r = 0.02
+    q = 0.0
+    T = 1.0
+
+    alpha = 1.5   # typical damping factor
+    eta = 0.25    # frequency spacing
+    n = 10        # N = 1024 points
+
+    # Example Heston params: [kappa, theta, sigma, rho, v0]
+    params = [2.0, 0.04, 0.3, -0.7, 0.04]
+    model = "Heston"
+
+    km, cT_km = genericFFT(params, S0, K, r, q, T, alpha, eta, n, model)
+
+    # We chose beta = log(K) as the grid start, so the first price corresponds to K.
+    price = float(cT_km[0])
+    if price < 0:
+        raise ValueError(f"FFT produced a negative price: {price}")
+
+    print(f"[DEMO] Model={model}, S0={S0}, K={K}, T={T} -> Call price ≈ {price:.6f}")
+
+
+if __name__ == "__main__":
+    _demo_fft_price()
